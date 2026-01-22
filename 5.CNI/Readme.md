@@ -78,8 +78,6 @@ Most major cloud providers offer their own CNI plugins optimized for their under
 
 ![Image](https://www.tigera.io/app/uploads/2021/12/K8s-CNI-diagram02.png)
 
-![Image](https://miro.medium.com/v2/resize%3Afit%3A1400/1%2AoXyEClXpha283g0Aye3gjw.png)
-
 ![Image](https://www.tigera.io/app/uploads/2024/08/Cilium-1.png)
 
 ```
