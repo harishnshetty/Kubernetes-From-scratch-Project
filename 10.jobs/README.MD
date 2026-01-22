@@ -20,8 +20,6 @@ Kubernetes workloads define **how containers run** inside the cluster.
 
 ![Image](https://www.cherryservers.com/v3/assets/blog/2025-05-19/img-01.png)
 
-![Image](https://storage.googleapis.com/cdn.thenewstack.io/media/2017/11/07751442-deployment.png)
-
 ![Image](https://miro.medium.com/1%2A-1Bz713XTxzs3KBi1lEAXg.png)
 
 ```
