@@ -1,0 +1,14 @@
+appversion: v1
+kind: pod
+metadata:
+  name: volume-pod
+spec:
+  containers:
+    - name: app
+      image: nginx
+      volumeMounts:
+        - name: temp-volume
+          mountPath: /usr/share/nginx/html
+  volumes:
+    - name: temp-volume
+      emptyDir: {}

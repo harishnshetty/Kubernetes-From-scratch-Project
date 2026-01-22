@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: StatefulSet
+metadata:
+  name: postgres-with-backup
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: postgres-with-backup
+  template:
+    metadata:
+      labels:
+        app: postgres-with-backup
+    spec:
+      containers:
+        # Main database
+        - name: postgres
+          image: postgres:13
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+      volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: backup-script
+          mountPath: /docker-entrypoint-initdb.d
+      ports:
+        - containerPort: 5432
+
+        # Backup sidecar
+        - name: backup-sidecar
+          image: postgres:13
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                # Wait for main DB to be ready
+                sleep 30
+                # Perform backup
+                PGPASSWORD=$$POSTGRES_PASSWORD pg_dump -h localhost -U postgres mydb > /backups/backup-$(date +%Y%m%d-%H%M%S).sql
+                # Keep only last 7 days of backups
+                find /backups -name "*.sql" -mtime +7 -delete
+                sleep 3600  # Run every hour
+              done
+      env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+      volumeMounts:
+        - name: postgres-backups
+          mountPath: /backups
+        - name: backup-script
+          mountPath: /scripts
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "100Mi"
+
+  volumes:
+    - name: postgres-data
+      persistentVolumeClaim:
+        claimName: postgres-pvc
+    - name: postgres-backups
+      persistentVolumeClaim:
+        claimName: postgres-backup-pvc
+    - name: backup-script
+      configMap:
+        name: backup-scripts

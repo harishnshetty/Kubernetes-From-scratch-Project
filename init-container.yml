@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: init-container-app
+  labels:
+    app: init-container-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: init-container-app
+  template:
+    metadata:
+      labels:
+        app: init-container-app
+    spec:
+      initContainers:
+        - name: wait-for-backend
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args: ["until nslookup google.com; do sleep 2 || true; done"]
+      containers:
+        - name: nginx-container
+          image: nginx
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: init-nginx-container-svc
+spec:
+  selector:
+    app: init-container-app
+  ports:
+    - port: 8080
+      targetPort: 80
+  type: LoadBalancer

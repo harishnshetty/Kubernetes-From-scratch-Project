@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-readness
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-readness
+  template:
+    metadata:
+      labels:
+        app: nginx-readness
+    spec:
+      containers:
+        - name: nginx-readness
+          image: nginx
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 10
+# kubectl describe po/nginx-readness
+
+# kubectl exec -it nginx-readness-5cfc794b99-gvggv -- /bin/sh
+# rm -rf /usr/share/nginx/html/index.html
+
+#NAME                              READY   STATUS    RESTARTS     AGE   IP            NODE           NOMINATED NODE   READINESS GATES
+#nginx-readness-7f8664846f-4777f   0/1     Running    (2m2s ago)    10s   10.1.0.115   minikube   <none>           <none>

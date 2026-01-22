@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blue-svc
+spec:
+  selector:
+    app: blue-deployment
+    version: blue
+  ports:
+    - port: 80
+      targetPort: 80
+#  kubectl run test-nginx --image=curlimages/curl --rm -it --restart=Never -- curl http://nginx-svc.default.svc.cluster.local:80
+

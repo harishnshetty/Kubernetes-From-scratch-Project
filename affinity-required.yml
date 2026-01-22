@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: affinity-required-app
+  labels:
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: affinity-required-app
+  template:
+    metadata:
+      labels:
+        app: affinity-required-app
+        tier: frontend
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: disktype
+                    operator: In
+                    values:
+                      - ssd
+                      - hdd
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: affinity-required-app-svc
+spec:
+  selector:
+    app: affinity-required-app
+  ports:
+    - port: 8080
+      targetPort: 80
+  type: LoadBalancer
+# kubectl label node minikube disktype=hdd
+#kubectl label node minikube disktype=ssd

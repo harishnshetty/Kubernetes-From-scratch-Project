@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noexecute-app
+  labels:
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: noexecute-app
+  template:
+    metadata:
+      labels:
+        app: noexecute-app
+        tier: frontend
+    spec:
+      containers:
+        - name: noexecute-app
+          image: nginx
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+      tolerations:
+        - key: "gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoExecute"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: noexecute-app-svc
+spec:
+  selector:
+    app: noexecute-app
+  ports:
+    - port: 8082
+      targetPort: 80
+  type: LoadBalancer
+# kubectl taint node minikube gpu=true:NoSchedule
+
+# kubectl taint node minikube-m02 gpu=true:NoExecute
+
+# kubectl describe node minikube-m02 | grep -i taint

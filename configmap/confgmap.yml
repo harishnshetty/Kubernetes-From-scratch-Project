@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-cm
+data:
+  firstname: harish
+  lastname: shetty
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-pod
+  labels:
+    app.kubernetes.io/name: MyApp
+spec:
+  containers:
+    - name: configmap-container
+      image: busybox:1.28
+      env:
+        - name: FIRSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: app-cm
+              key: firstname
+      command: ["sh", "-c", "echo $FIRSTNAME $LASTNAME && sleep 3600"]
+# kubectl exec -it configmap-pod -- /bin/sh
+# echo $FIRSTNAME
+# echo $LASTNAME

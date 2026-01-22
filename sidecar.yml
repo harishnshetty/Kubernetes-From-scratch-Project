@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: app-with-sidecar
+  labels:
+    app: myapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        # Main application container
+        - name: main-app
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+      volumeMounts:
+        - name: shared-logs
+          mountPath: /var/log/nginx
+        - name: shared-data
+          mountPath: /shared-data
+
+    # Sidecar container
+    - name: log-collector-sidecar
+      image: fluent/fluentd:latest
+      volumeMounts:
+        - name: shared-logs
+          mountPath: /var/log/nginx
+        - name: config-volume
+          mountPath: /fluentd/etc
+      command: ["/bin/sh", "-c"]
+      args:
+        - fluentd -c /fluentd/etc/fluentd.conf
+
+    # Another sidecar example (for metrics)
+    - name: metrics-exporter-sidecar
+      image: prom/node-exporter:latest
+      ports:
+        - containerPort: 9100
+      securityContext:
+        runAsUser: 65534 # nobody user for security
+
+  volumes:
+    - name: shared-logs
+      emptyDir: {}
+    - name: shared-data
+      emptyDir: {}
+    - name: config-volume
+      configMap:
+        name: fluentd-config

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-liveness-tcp
+spec:
+  containers:
+    - name: nginx-liveness-tcp
+      image: nginx
+      ports:
+        - containerPort: 80
+      livenessProbe:
+        tcpSocket:
+          port: 8080
+        initialDelaySeconds: 3
+        periodSeconds: 3
+# kubectl describe po/nginx-liveness-tcp
+#NAME                 READY   STATUS    RESTARTS     AGE   IP            NODE           NOMINATED NODE   READINESS GATES
+#nginx-liveness-tcp   1/1     Running   2 (6s ago)

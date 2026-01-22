@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: monitored-job
+spec:
+  completions: 1
+  template:
+    spec:
+      shareProcessNamespace: true # Share PID namespace between containers
+      containers:
+        - name: main-worker
+          image: alpine:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Starting main task..."
+              for i in $(seq 1 10); do
+                echo "Processing item $$i"
+                sleep 1
+              done
+              echo "Task completed"
+
+        - name: monitor-sidecar
+          image: busybox:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Monitoring main process..."
+              # Monitor the main process
+              while true; do
+                if ps aux | grep -v grep | grep -q "main-worker"; then
+                  echo "Main process is running"
+                else
+                  echo "Main process completed"
+                  break
+                fi
+                sleep 5
+              done
+
+      restartPolicy: Never

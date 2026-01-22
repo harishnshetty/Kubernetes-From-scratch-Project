@@ -1,0 +1,13 @@
+coredns
+storage-provisioner
+ngf-nginx-gateway-fabric
+kubelet
+kube-proxy
+kube-scheduler
+kube-controller-manager
+kube-apiserver
+etcd
+kindnet
+storage-provisioner
+metrics-server
+ngf-nginx-gateway-fabric
