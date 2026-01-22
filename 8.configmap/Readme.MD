@@ -1,6 +1,4 @@
-# 🚀 Project Name
-
-**Example:** `k8s-configmap-secret-demo`
+# 🚀configmap-secret-demo
 
 > A Kubernetes application demonstrating best practices for ConfigMaps, Secrets, and Deployments using YAML manifests.
 
