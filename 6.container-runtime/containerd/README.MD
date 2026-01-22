@@ -14,8 +14,6 @@ A **container runtime** is the component responsible for:
 
 ## 🏗️ Container Runtime Architecture
 
-![Image](https://www.simform.com/wp-content/uploads/2023/08/container-runtime-architecture.jpg)
-
 ![Image](https://devoriales.com/static/post_images/high-level-container-architecture.png)
 
 ![Image](https://wac-cdn.atlassian.com/dam/jcr%3A8a8c5eff-cedd-4e46-a397-9d635a098afc/Kubernetes-vs-Docker-article_2%402x.jpg?cdnVersion=3145)
