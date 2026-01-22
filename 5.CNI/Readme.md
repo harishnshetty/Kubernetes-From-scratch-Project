@@ -55,4 +55,300 @@ Most major cloud providers offer their own CNI plugins optimized for their under
 * **Azure CNI:** Integrates Pods directly into Azure Virtual Networks.
 * **GKE CNI:** Google’s native implementation for Google Kubernetes Engine.
 
-Would you like me to help you compare two specific plugins for a particular project you're working on?
+
+---
+
+# 🌐 Kubernetes CNI Plugins – Real-World Setup & YAML Examples
+
+---
+
+## 🧠 CNI Comparison (Quick Truth Table)
+
+| CNI           | Networking       | NetworkPolicy | eBPF          | Performance | Production |
+| ------------- | ---------------- | ------------- | ------------- | ----------- | ---------- |
+| **Cilium**    | L3–L7            | ✅ Advanced    | ✅             | ⭐⭐⭐⭐⭐       | 🔥 Best    |
+| **Calico**    | L3               | ✅             | ❌ / eBPF(opt) | ⭐⭐⭐⭐        | ⭐⭐⭐⭐       |
+| **Flannel**   | L3 Overlay       | ❌             | ❌             | ⭐⭐          | ❌          |
+| **Canal**     | Flannel + Calico | ✅             | ❌             | ⭐⭐⭐         | ⚠️         |
+| **Weave Net** | L2/L3            | ✅             | ❌             | ⭐⭐          | ⚠️         |
+
+---
+
+## 🏗️ CNI Architecture (High Level)
+
+![Image](https://www.tigera.io/app/uploads/2021/12/K8s-CNI-diagram02.png)
+
+![Image](https://miro.medium.com/v2/resize%3Afit%3A1400/1%2AoXyEClXpha283g0Aye3gjw.png)
+
+![Image](https://www.tigera.io/app/uploads/2024/08/Cilium-1.png)
+
+```
+Pod → veth → CNI → Node Network → Other Node → Pod
+```
+
+---
+
+# 🐝 1. CILIUM (🔥 Production King)
+
+### ✅ Why Cilium?
+
+* eBPF (no iptables)
+* L7 policies
+* Observability (Hubble)
+* Used by EKS, GKE, AKS internally
+
+---
+
+## 🔧 Install Cilium (kubeadm / self-managed)
+
+### Step 1: Install CLI
+
+```bash
+curl -L --fail https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz | tar xz
+sudo mv cilium /usr/local/bin/
+```
+
+### Step 2: Install Cilium
+
+```bash
+cilium install
+```
+
+### Step 3: Verify
+
+```bash
+cilium status
+kubectl get pods -n kube-system
+```
+
+---
+
+## 📜 Sample Network Policy (L7 – HTTP)
+
+```yaml
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-http
+spec:
+  endpointSelector:
+    matchLabels:
+      app: frontend
+  ingress:
+  - toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+```
+
+---
+
+## 🧪 Real-World Use Case
+
+✔ Zero-trust networking
+✔ Microservices
+✔ Multi-cluster
+
+---
+
+# 🐯 2. CALICO (Enterprise Standard)
+
+### ✅ Why Calico?
+
+* Stable
+* Strong NetworkPolicy
+* Used heavily in on-prem + EKS
+
+---
+
+## 🔧 Install Calico
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
+```
+
+Verify:
+
+```bash
+kubectl get pods -n kube-system
+```
+
+---
+
+## 📜 Sample NetworkPolicy (Namespace Isolation)
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+  namespace: backend
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+```
+
+Allow frontend:
+
+```yaml
+ingress:
+- from:
+  - namespaceSelector:
+      matchLabels:
+        name: frontend
+```
+
+---
+
+## 🧪 Real-World Use Case
+
+✔ Enterprises
+✔ Compliance (PCI, HIPAA)
+✔ Traditional Kubernetes networking
+
+---
+
+# 🌊 3. FLANNEL (Learning / Simple)
+
+### ❌ No NetworkPolicy support
+
+### ❌ Not for production
+
+---
+
+## 🔧 Install Flannel
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+```
+
+---
+
+## 📜 Sample Pod (Works but No Security)
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-flannel
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+```
+
+---
+
+## 🧪 Use Case
+
+✔ Learning
+✔ Lab clusters
+
+---
+
+# 🚰 4. CANAL (Flannel + Calico)
+
+> Hybrid model: **Flannel for networking + Calico for policy**
+
+---
+
+## 🔧 Install Canal
+
+```bash
+kubectl apply -f https://docs.projectcalico.org/manifests/canal.yaml
+```
+
+---
+
+## 📜 Sample NetworkPolicy (Works because of Calico)
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend
+spec:
+  podSelector:
+    matchLabels:
+      role: backend
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: frontend
+```
+
+---
+
+## 🧪 Use Case
+
+✔ Migration from Flannel
+✔ Mixed clusters
+
+---
+
+# 🕸️ 5. WEAVE NET
+
+### ❌ Performance issues at scale
+
+### ⚠️ Legacy clusters
+
+---
+
+## 🔧 Install Weave Net
+
+```bash
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+```
+
+---
+
+## 📜 Sample NetworkPolicy
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-same-namespace
+spec:
+  podSelector: {}
+  ingress:
+  - from:
+    - podSelector: {}
+```
+
+---
+
+## 🧪 Use Case
+
+✔ Small clusters
+✔ Legacy setups
+
+---
+
+# 🔍 How to Check Which CNI Is Installed
+
+```bash
+ls /etc/cni/net.d/
+```
+
+```bash
+kubectl get pods -n kube-system | grep -E "cilium|calico|flannel|weave"
+```
+
+---
+
+# 🧭 Which CNI Should YOU Use?
+
+| Scenario              | Recommendation |
+| --------------------- | -------------- |
+| Production + Security | **Cilium**     |
+| Enterprise / Stable   | **Calico**     |
+| Learning              | **Flannel**    |
+| Migration             | **Canal**      |
+| Legacy                | **Weave Net**  |
+
+---
+
+
