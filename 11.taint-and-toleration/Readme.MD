@@ -47,8 +47,6 @@ Filters (hard rules) → Scoring (soft rules)
 
 ![Image](https://www.apptio.com/wp-content/uploads/how-node-affinity-works1.png)
 
-![Image](https://cast.ai/wp-content/uploads/2023/04/des-397-new-stack-1.png)
-
 ![Image](https://trstringer.com/images/prefernoschedule1.excalidraw.png)
 
 ```
