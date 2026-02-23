@@ -1,3 +1,5 @@
+https://medium.com/@muppedaanvesh/kubernetes-taints-tolerations-b0e0ed076cad
+
 # 🎯 Kubernetes Scheduling – Labels, Affinity & Taints (Complete Guide)
 
 This repository demonstrates **how Kubernetes schedules Pods onto Nodes** using:

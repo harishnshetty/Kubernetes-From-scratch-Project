@@ -3,7 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 # You need to already have a Role named "pod-reader" in that namespace.
 kind: ClusterRoleBinding
 metadata:
-  name: read-nodes
+  name: read-pods
 subjects:
   # You can specify more than one "subject"
   - kind: Group #User
@@ -12,5 +12,5 @@ subjects:
 roleRef:
   # "roleRef" specifies the binding to a Role / ClusterRole
   kind: ClusterRole #this must be Role or ClusterRole
-  name: node-reader # this must match the name of the Role or ClusterRole you wish to bind to
+  name: pod-reader # this must match the name of the Role or ClusterRole you wish to bind to
   apiGroup: rbac.authorization.k8s.io

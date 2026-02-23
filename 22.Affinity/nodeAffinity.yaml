@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      affinity:
+        # nodeAffinity:
+        #   requiredDuringSchedulingIgnoredDuringExecution:
+        #     nodeSelectorTerms:
+        #       - matchExpressions:
+        #           - key: disktype
+        #             operator: In
+        #             values:
+        #               - hdd
+
+        # podAntiAffinity:
+        #   requiredDuringSchedulingIgnoredDuringExecution: # strict rule → don't schedule if condition fails
+        #     - labelSelector:
+        #         matchExpressions:
+        #           - key: app
+        #             operator: "In"
+        #             values:
+        #               - myapp
+        #       topologyKey: "kubernetes.io/hostname"
+
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution: # soft rule → don't schedule if condition fails
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - myapp
+                topologyKey: "kubernetes.io/hostname"
+
+        # podAffinity:
+        #   preferredDuringSchedulingIgnoredDuringExecution:
+        #     - weight: 50
+        #       podAffinityTerm:
+        #         labelSelector:
+        #           matchExpressions:
+        #             - key: app
+        #               operator: In
+        #               values:
+        #                 - myapp
+        #         topologyKey: "kubernetes.io/hostname"
+
+      containers:
+        - name: myapp
+          image: nginx
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          ports:
+            - containerPort: 80

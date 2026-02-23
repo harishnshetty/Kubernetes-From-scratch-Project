@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  nodeSelector:
+    disktype: hdd
+  containers:
+    - name: nginx
+      image: nginx
+# kubectl label node minikube-m03 disktype=hdd

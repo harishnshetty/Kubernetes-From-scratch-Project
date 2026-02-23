@@ -49,3 +49,4 @@ spec:
   type: LoadBalancer
 # kubectl label node minikube disktype=hdd
 #kubectl label node minikube disktype=ssd
+# minikube-m03

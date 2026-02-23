@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ns-reader
+  namespace: dev
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    # verbs: ["get", "list", "watch"]
+    verbs: [create, delete, get, list, patch, update, watch]
+
+# kubectl certificate approve harish-csr
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: read-ns
+  namespace: dev
+subjects:
+  - kind: User
+    name: harish
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: ns-reader
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,45 @@
+# 2️⃣ podAffinity → place pods together
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noexecute-app
+  labels:
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: noexecute-app
+  template:
+    metadata:
+      labels:
+        app: noexecute-app
+        tier: frontend
+    spec:
+      containers:
+        - name: noexecute-app
+          image: nginx
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+
+      tolerations:
+        - key: "gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoExecute"
+
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                      - frontend
+              topologyKey: "kubernetes.io/hostname"

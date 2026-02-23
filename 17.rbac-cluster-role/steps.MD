@@ -29,7 +29,8 @@ Authentication is done using **X.509 certificates**, and **authorization** is do
 
 🔑 This is **your identity root**.
 ❌ Do **NOT regenerate unless compromised**
-
+---
+## Create the Private Key for harish
 ```bash
 openssl genrsa -out harish.key 2048
 ```
@@ -50,7 +51,7 @@ CSR = “Hey Kubernetes, please sign this key”
 openssl req -new \
   -key harish.key \
   -out harish.csr \
-  -subj "/CN=harish/O=dev-team"
+  -subj "/CN=harish/O=dev/O=example.org"
 ```
 
 ### What matters:
@@ -58,7 +59,7 @@ openssl req -new \
 | Field | Meaning             |
 | ----- | ------------------- |
 | CN    | Username (`harish`) |
-| O     | Group (`dev-team`)  |
+| O     | Group (`dev`)  |
 
 ✔ Kubernetes uses:
 
