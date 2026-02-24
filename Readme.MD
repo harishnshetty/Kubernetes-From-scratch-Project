@@ -9,3 +9,4 @@ alias kn='kubectl config set-context --current --namespace'
 
 source ~/.zshrc
 ```
+https://github.com/anveshmuppeda/kubernetes
